@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.api.load
 import coil.transform.CircleCropTransformation
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import com.yoyoyo.ca.R
 import com.yoyoyo.ca.databinding.ActivityChatBinding
+import com.yoyoyo.ca.model.Message
 import com.yoyoyo.ca.model.User
 import kotlinx.android.synthetic.main.activity_chat.*
 
@@ -24,27 +26,43 @@ class ChatActivity : AppCompatActivity() {
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
     lateinit var binding: ActivityChatBinding
+    private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_chat)
 
-        var user: User? = intent?.extras?.getParcelable("user")
+        user = intent?.extras?.getParcelable("user")
 
         supportActionBar?.title = user?.userName
+
+        binding.btSendMessage.setOnClickListener{ sendMessage() }
 
         recyclerMessages.adapter = groupAdapter
         recyclerMessages.layoutManager = LinearLayoutManager(this)
 
-        groupAdapter.add(MessageItem(true))
-        groupAdapter.add(MessageItem(false))
-        groupAdapter.add(MessageItem(false))
-        groupAdapter.add(MessageItem(true))
-        groupAdapter.add(MessageItem(true))
         verifyAuthentication()
 
         fetchMessages()
+    }
+
+    private fun sendMessage() {
+        var text = binding.edMessage.text.toString()
+        binding.edMessage.text = null
+
+        var fromId = FirebaseAuth.getInstance().uid
+        var toId = user?.uuid
+        var timestamp = System.currentTimeMillis()
+
+        var message: Message = Message(text, timestamp, fromId, toId, false)
+
+        if(message.text!!.isNotEmpty()){
+            FirebaseFirestore.getInstance().collection("conversations")
+                .document(fromId)
+                .collection(toId)
+        }
+
     }
 
     private fun fetchMessages() {
@@ -78,17 +96,16 @@ class ChatActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    class MessageItem() : Item<GroupieViewHolder>() {
+    private class MessageItem() : Item<GroupieViewHolder>() {
 
-        private var isLeft = false
-        private var user: User? = null
+        private var message: Message? = null
 
-        constructor(isLeft: Boolean) : this() {
-            this.isLeft = isLeft
+        constructor(message: Message?) : this() {
+            this.message = message
         }
 
         override fun getLayout(): Int {
-            return if(isLeft) {
+            return if(message?.fromId == FirebaseAuth.getInstance().uid) {
                 R.layout.item_message_received
             } else {
                 R.layout.item_message_sent
@@ -96,14 +113,16 @@ class ChatActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            /*var tvContactName = viewHolder.itemView.findViewById<TextView>(R.id.tvContactName)
-            var ivContact = viewHolder.itemView.findViewById<ImageView>(R.id.ivContact)
-            ivContact.load(user?.profileUrl) {
-                crossfade(true)
-                crossfade(500)
-                transformations(CircleCropTransformation())
+            var tvUserMessage = viewHolder.itemView.findViewById<TextView>(R.id.tvUserMessage)
+            var ivUserMessage = viewHolder.itemView.findViewById<ImageView>(R.id.ivUserMessage)
+            if(ChatActivity().user != null) {
+                ivUserMessage.load(ChatActivity().user?.profileUrl) {
+                    crossfade(true)
+                    crossfade(500)
+                    transformations(CircleCropTransformation())
+                }
+                tvUserMessage.text = message?.text
             }
-            tvContactName.text = user?.userName*/
         }
     }
 }

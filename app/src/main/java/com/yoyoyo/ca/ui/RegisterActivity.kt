@@ -46,7 +46,6 @@ class RegisterActivity : AppCompatActivity() {
                 .addOnCompleteListener(OnCompleteListener {
                     if(it.isSuccessful){
                         Log.i("Yoyoyo", "user created: " + it.result.user.uid)
-
                         saveUserFirebase()
                     }else{
                         Log.i("Yoyoyo", it.exception.toString())
@@ -75,9 +74,12 @@ class RegisterActivity : AppCompatActivity() {
                     var user = User(uid, userName, profileUrl)
 
                     FirebaseFirestore.getInstance().collection("users")
-                        .add(user)
+                        .document(uid)
+                        .set(user)
                         .addOnSuccessListener {
-                            Log.i("Yoyoyo", it.id)
+                            var intent = Intent(this, ChatActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
                         }
                         .addOnFailureListener {
                             Log.i("Yoyoyo", it.message.toString())

@@ -16,4 +16,5 @@
     <string name="msg_fill_name">Please fill name field</string>
     <string name="msg_fill_email">Please fill email field</string>
     <string name="msg_fill_password">Please fill password field</string>
+    <string name="picture">picture</string>
 </resources>
