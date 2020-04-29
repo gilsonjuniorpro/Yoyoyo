@@ -77,7 +77,7 @@ class RegisterActivity : AppCompatActivity() {
                         .document(uid)
                         .set(user)
                         .addOnSuccessListener {
-                            var intent = Intent(this, ChatActivity::class.java)
+                            var intent = Intent(this, MessagesActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                             startActivity(intent)
                         }

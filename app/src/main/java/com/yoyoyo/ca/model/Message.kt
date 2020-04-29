@@ -8,8 +8,7 @@ class Message (
     var text: String?,
     var timestamp: Long?,
     var fromId: String?,
-    var toId: String?,
-    var isLeft: Boolean = false
+    var toId: String?
 ) : Parcelable {
-    constructor() : this("", 0, "","", false)
+    constructor() : this("", 0, "","")
 }

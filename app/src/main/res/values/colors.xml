@@ -10,4 +10,5 @@
     <color name="colorBackgroundButton">#ff9000</color>
     <color name="colorTextButton">#23222a</color>
     <color name="colorTextCard">#ACACAC</color>
+    <color name="colorTextTime">#B3B3B5</color>
 </resources>

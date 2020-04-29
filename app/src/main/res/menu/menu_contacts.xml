@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/contacts"
+        android:title="contacts"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/logout"
         android:title="logout"
         app:showAsAction="always"/>

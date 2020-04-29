@@ -17,4 +17,5 @@
     <string name="msg_fill_email">Please fill email field</string>
     <string name="msg_fill_password">Please fill password field</string>
     <string name="picture">picture</string>
+    <string name="lorem_ipsum_small">Lorem Ipsum is simply</string>
 </resources>

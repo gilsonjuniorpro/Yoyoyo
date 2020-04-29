@@ -40,7 +40,7 @@ class ContactsActivity : AppCompatActivity() {
         binding.recyclerContacts.layoutManager = LinearLayoutManager(this)
 
         groupAdapter.setOnItemClickListener(OnItemClickListener { item: Item<GroupieViewHolder>, view: View ->
-            var intent:Intent = Intent(this@ContactsActivity, ChatActivity::class.java)
+            var intent = Intent(this@ContactsActivity, ChatActivity::class.java)
             var userItem = item as UserItem
             intent.putExtra("user", userItem.user)
             startActivity(intent)
@@ -61,8 +61,9 @@ class ContactsActivity : AppCompatActivity() {
 
                 for(doc in docs){
                     var user = doc.toObject(User::class.java)
-                    Log.d("Yoyoyo", user?.userName)
-                    groupAdapter.add(UserItem(user))
+                    if(user?.uuid != FirebaseAuth.getInstance().uid) {
+                        groupAdapter.add(UserItem(user))
+                    }
                 }
             })
     }
@@ -82,10 +83,6 @@ class ContactsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.contacts -> {
-                var intent = Intent(this, ChatActivity::class.java)
-                startActivity(intent)
-            }
             R.id.logout -> {
                 FirebaseAuth.getInstance().signOut()
                 verifyAuthentication()
@@ -111,7 +108,7 @@ class ContactsActivity : AppCompatActivity() {
             var ivContact = viewHolder.itemView.findViewById<ImageView>(R.id.ivContact)
             ivContact.load(user?.profileUrl) {
                 crossfade(true)
-                crossfade(500)
+                crossfade(100)
                 transformations(CircleCropTransformation())
             }
             tvContactName.text = user?.userName

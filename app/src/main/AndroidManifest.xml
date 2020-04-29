@@ -10,34 +10,34 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:label="@string/activity_message"
-            android:name=".ui.ChatActivity">
+        <activity android:name=".ui.MessagesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ContactsActivity"/>
         </activity>
 
         <activity
-            android:label="@string/activity_contacts"
-            android:name=".ui.ContactsActivity">
-
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ChatActivity"/>
+            android:name=".ui.ChatActivity"
+            android:label="@string/activity_message">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ContactsActivity" />
         </activity>
 
-        <activity android:name=".ui.RegisterActivity">
+        <activity
+            android:name=".ui.ContactsActivity"
+            android:label="@string/app_name">
 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MessagesActivity" />
         </activity>
 
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.RegisterActivity"></activity>
 
-        </activity>
+        <activity android:name=".ui.MainActivity"></activity>
 
         <meta-data
             android:name="preloaded_fonts"

@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener(OnCompleteListener {
                     if(it.isSuccessful){
                         Log.i("Yoyoyo", "user created: " + it.result.user.uid)
-                        var intent = Intent(this, ChatActivity::class.java)
+                        var intent = Intent(this, MessagesActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
                     }else{
