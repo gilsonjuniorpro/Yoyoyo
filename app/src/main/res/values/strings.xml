@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Yo yo yo</string>
+    <string name="email">E-mail</string>
+    <string name="password">Password</string>
+    <string name="login">Log in</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="user_picture">user picture</string>
+    <string name="lorem_ipsum">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</string>
+    <string name="imageview_user_sent">ImageView User Sent</string>
+    <string name="imageview_user_received">ImageView User Received</string>
+    <string name="name">Name</string>
+    <string name="register">Register</string>
+    <string name="msg_fill_all_fields">Please fill name field</string>
+    <string name="msg_fill_name">Please fill name field</string>
+    <string name="msg_fill_email">Please fill email field</string>
+    <string name="msg_fill_password">Please fill password field</string>
+</resources>

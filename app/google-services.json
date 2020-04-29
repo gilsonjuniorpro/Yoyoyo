@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "270320369147",
+    "firebase_url": "https://yo-yo-yo-d4889.firebaseio.com",
+    "project_id": "yo-yo-yo-d4889",
+    "storage_bucket": "yo-yo-yo-d4889.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270320369147:android:50c061b5ddedf821765f5e",
+        "android_client_info": {
+          "package_name": "com.yoyoyo.ca"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "270320369147-ltc0j7ip6aonn7c25itbrfpsgalokju7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdA6-d0ZlDEdXZi2FxfuVYqPNA75Wb3mw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "270320369147-ltc0j7ip6aonn7c25itbrfpsgalokju7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
