@@ -13,10 +13,14 @@ import androidx.databinding.DataBindingUtil
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.yoyoyo.ca.R
 import com.yoyoyo.ca.databinding.ActivityContactsBinding
 import com.yoyoyo.ca.databinding.ActivityRegisterBinding
+import com.yoyoyo.ca.model.User
 import java.lang.Exception
+import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -42,8 +46,10 @@ class RegisterActivity : AppCompatActivity() {
                 .addOnCompleteListener(OnCompleteListener {
                     if(it.isSuccessful){
                         Log.i("Yoyoyo", "user created: " + it.result.user.uid)
+
+                        saveUserFirebase()
                     }else{
-                        Log.i("Yoyoyo", it.result.user.uid)
+                        Log.i("Yoyoyo", it.exception.toString())
                     }
                 })
                 .addOnFailureListener(OnFailureListener {
@@ -54,10 +60,39 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveUserFirebase() {
+        var fileName = UUID.randomUUID().toString()
+        var storageRef = FirebaseStorage.getInstance().getReference("/images/$fileName")
+        storageRef.putFile(imageUri!!)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener {
+                    Log.i("Yoyoyo", it.toString())
+
+                    var uid = FirebaseAuth.getInstance().uid.toString()
+                    var userName = binding.etName.text.toString()
+                    var profileUrl = it.toString()
+
+                    var user = User(uid, userName, profileUrl)
+
+                    FirebaseFirestore.getInstance().collection("users")
+                        .add(user)
+                        .addOnSuccessListener {
+                            Log.i("Yoyoyo", it.id)
+                        }
+                        .addOnFailureListener {
+                            Log.i("Yoyoyo", it.message.toString())
+                        }
+                }
+            }
+            .addOnFailureListener {
+                Log.i("Yoyoyo", it.message.toString())
+            }
+    }
+
     private fun uploadImage() {
-        var it = Intent(Intent.ACTION_PICK)
-        it.type = "image/*"
-        startActivityForResult(it, 0)
+        var intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

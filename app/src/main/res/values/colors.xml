@@ -5,9 +5,9 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorBackgroundLayout">#312e37</color>
     <color name="colorEdittext">#706d76</color>
-    <color name="colorBackgroundCard">#312e37</color>
+    <color name="colorBackgroundCard">#23222a</color>
     <color name="colorBackgroundEdittext">#23222a</color>
     <color name="colorBackgroundButton">#ff9000</color>
     <color name="colorTextButton">#23222a</color>
-    <color name="colorTextCard">#706d76</color>
+    <color name="colorTextCard">#ACACAC</color>
 </resources>

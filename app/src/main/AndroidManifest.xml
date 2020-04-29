@@ -9,17 +9,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.ChatActivity">
-        </activity>
-        <activity android:name=".ui.ContactsActivity">
-        </activity>
-        <activity android:name=".ui.RegisterActivity">
+
+        <activity
+            android:label="@string/activity_message"
+            android:name=".ui.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:label="@string/activity_contacts"
+            android:name=".ui.ContactsActivity">
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ChatActivity"/>
+        </activity>
+
+        <activity android:name=".ui.RegisterActivity">
+
+        </activity>
+
         <activity android:name=".ui.MainActivity">
 
         </activity>

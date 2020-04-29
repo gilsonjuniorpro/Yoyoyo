@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Yo yo yo</string>
+    <string name="activity_message">Messages</string>
+    <string name="activity_contacts">Contacts</string>
     <string name="email">E-mail</string>
     <string name="password">Password</string>
     <string name="login">Log in</string>
