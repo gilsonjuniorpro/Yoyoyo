@@ -18,6 +18,7 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import com.yoyoyo.ca.R
+import com.yoyoyo.ca.core.ChatApplication
 import com.yoyoyo.ca.databinding.ActivityChatBinding
 import com.yoyoyo.ca.model.Contact
 import com.yoyoyo.ca.model.Message
@@ -33,21 +34,20 @@ class ChatActivity : AppCompatActivity() {
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
     lateinit var binding: ActivityChatBinding
     private var user: User? = null
-    private var contact: Contact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val chatApplication: ChatApplication = application as ChatApplication
+        application.registerActivityLifecycleCallbacks(
+            chatApplication
+        )
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_chat)
 
         verifyAuthentication()
 
         user = intent?.extras?.getParcelable("user")
-        contact = intent?.extras?.getParcelable("contact")
-
-        if(contact != null){
-            user = fromContactToUser(contact!!)
-        }
 
         supportActionBar?.title = user?.userName
 
@@ -55,29 +55,32 @@ class ChatActivity : AppCompatActivity() {
 
         binding.recyclerMessages.adapter = groupAdapter
         binding.recyclerMessages.layoutManager = LinearLayoutManager(this)
+        binding.tvLoggedUser.text = me?.userName
 
         FirebaseFirestore.getInstance().collection("/users")
             .document(FirebaseAuth.getInstance().uid.toString())
             .get()
             .addOnSuccessListener {
                 me = it.toObject(User::class.java)
+                binding.tvLoggedUser.text = me?.userName
                 fetchMessages()
             }
             .addOnFailureListener {
                 Log.i("Yoyoyo", it.message.toString())
             }
+
+        fetchMessages()
     }
 
     private fun fromContactToUser(contact: Contact): User? {
         return User(
             contact.uuid,
-            contact.userName,
+            contact.fromUser,
             contact.photoUrl,
             "",
             false
         )
     }
-
 
     private fun sendMessage() {
         var text = binding.edMessage.text.toString()
@@ -97,6 +100,7 @@ class ChatActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     var contact = Contact(
                         toId,
+                        me?.userName,
                         user?.userName,
                         message.text,
                         timestamp,
@@ -128,6 +132,8 @@ class ChatActivity : AppCompatActivity() {
                     Log.i("Yoyoyo", it.message.toString())
                 }
 
+
+
             FirebaseFirestore.getInstance().collection("conversations")
                 .document(toId)
                 .collection(fromId)
@@ -136,9 +142,10 @@ class ChatActivity : AppCompatActivity() {
                     var contact = Contact(
                         toId,
                         user?.userName,
+                        me?.userName,
                         message.text,
                         timestamp,
-                        user?.profileUrl
+                        me?.profileUrl
                     )
 
                     FirebaseFirestore.getInstance().collection("/last-messages")
@@ -146,20 +153,6 @@ class ChatActivity : AppCompatActivity() {
                         .collection("contacts")
                         .document(fromId)
                         .set(contact)
-
-                    if(!user?.online!!){
-                        var notification = Notification(
-                            message.fromId,
-                            message.toId,
-                            message.timestamp,
-                            message.text,
-                            me?.userName
-                        )
-
-                        FirebaseFirestore.getInstance().collection("notifications")
-                            .document(user?.token!!)
-                            .set(notification)
-                    }
                 }
                 .addOnFailureListener {
                     Log.i("Yoyoyo", it.message.toString())
@@ -180,11 +173,13 @@ class ChatActivity : AppCompatActivity() {
                 .addSnapshotListener{ querySnapshot: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException? ->
                     var docs = querySnapshot?.documentChanges
 
+                    groupAdapter.clear()
                     if(docs != null){
                         for(doc in docs){
                             if(doc.type == DocumentChange.Type.ADDED){
                                 var message:Message = doc.document.toObject(Message::class.java)
                                 groupAdapter.add(MessageItem(message))
+                                groupAdapter.notifyDataSetChanged()
                                 binding.recyclerMessages.smoothScrollToPosition(groupAdapter.itemCount -1)
                             }
                         }

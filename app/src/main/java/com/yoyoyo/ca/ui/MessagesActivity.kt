@@ -3,6 +3,8 @@ package com.yoyoyo.ca.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -27,6 +29,7 @@ import com.yoyoyo.ca.core.ChatApplication
 import com.yoyoyo.ca.databinding.ActivityChatBinding
 import com.yoyoyo.ca.databinding.ActivityMessagesBinding
 import com.yoyoyo.ca.model.Contact
+import com.yoyoyo.ca.model.User
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,6 +37,7 @@ class MessagesActivity : AppCompatActivity() {
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
     lateinit var binding: ActivityMessagesBinding
+    var me: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +47,17 @@ class MessagesActivity : AppCompatActivity() {
             chatApplication
         )
 
+        FirebaseFirestore.getInstance().collection("/users")
+            .document(FirebaseAuth.getInstance().uid.toString())
+            .get()
+            .addOnSuccessListener {
+                me = it.toObject(User::class.java)
+                binding.tvLoggedUser.text = me?.userName
+            }
+            .addOnFailureListener {
+                Log.i("Yoyoyo", it.message.toString())
+            }
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_messages)
         binding.recyclerLast.adapter = groupAdapter
         binding.recyclerLast.layoutManager = LinearLayoutManager(this)
@@ -50,7 +65,15 @@ class MessagesActivity : AppCompatActivity() {
         groupAdapter.setOnItemClickListener(OnItemClickListener { item: Item<GroupieViewHolder>, view: View ->
             var intent = Intent(this@MessagesActivity, ChatActivity::class.java)
             var contactItem = item as MessagesActivity.ContactItem
-            intent.putExtra("contact", contactItem.contact)
+            var contact:Contact = contactItem.contact!!
+            contact.fromUser = me?.userName
+            var user = User(
+                contact.uuid,
+                contact.toUser,
+                contact.photoUrl,
+                null, false
+            )
+            intent.putExtra("user", user)
             startActivity(intent)
         })
 
@@ -87,11 +110,13 @@ class MessagesActivity : AppCompatActivity() {
             .addSnapshotListener{ querySnapshot: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException? ->
                 var docs = querySnapshot?.documentChanges
 
+                groupAdapter.clear()
                 if(docs != null){
                     for(doc in docs){
                         if(doc.type == DocumentChange.Type.ADDED){
                             var contact:Contact = doc.document.toObject(Contact::class.java)
                             groupAdapter.add(ContactItem(contact))
+                            groupAdapter.notifyDataSetChanged()
                             binding.recyclerLast.smoothScrollToPosition(groupAdapter.itemCount -1)
                         }
                     }
@@ -138,7 +163,7 @@ class MessagesActivity : AppCompatActivity() {
 
             if(contact != null){
                 tvLastMessage.text = contact?.lastMessage
-                tvContactName.text = contact?.userName
+                tvContactName.text = contact?.toUser
                 tvTime.text = convertLongToTime(contact?.timestamp!!)
 
                 ivContact.load(contact?.photoUrl) {

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.tasks.OnCompleteListener
@@ -15,6 +16,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.jarvis.ca.Mark
 import com.yoyoyo.ca.R
 import com.yoyoyo.ca.databinding.ActivityContactsBinding
 import com.yoyoyo.ca.databinding.ActivityRegisterBinding
@@ -41,32 +43,35 @@ class RegisterActivity : AppCompatActivity() {
         val email = binding.etEmail.text.toString()
         val password = binding.etPassword.text.toString()
 
+        binding.progressBar.visibility = View.VISIBLE
         if(name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()){
             FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(OnCompleteListener {
+                    binding.progressBar.visibility = View.GONE
                     if(it.isSuccessful){
-                        Log.i("Yoyoyo", "user created: " + it.result.user.uid)
                         saveUserFirebase()
                     }else{
                         Log.i("Yoyoyo", it.exception.toString())
                     }
                 })
                 .addOnFailureListener(OnFailureListener {
+                    binding.progressBar.visibility = View.GONE
                     Log.i("Yoyoyo", it.message.toString())
                 })
         }else{
-            Toast.makeText(this, getString(R.string.msg_fill_all_fields), Toast.LENGTH_LONG).show()
+            binding.progressBar.visibility = View.GONE
+            Mark.showAlertError(this, getString(R.string.msg_fill_all_fields))
         }
     }
 
     private fun saveUserFirebase() {
         var fileName = UUID.randomUUID().toString()
         var storageRef = FirebaseStorage.getInstance().getReference("/images/$fileName")
+
+        binding.progressBar.visibility = View.VISIBLE
         storageRef.putFile(imageUri!!)
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener {
-                    Log.i("Yoyoyo", it.toString())
-
                     var uid = FirebaseAuth.getInstance().uid.toString()
                     var userName = binding.etName.text.toString()
                     var profileUrl = it.toString()
@@ -77,16 +82,19 @@ class RegisterActivity : AppCompatActivity() {
                         .document(uid)
                         .set(user)
                         .addOnSuccessListener {
+                            binding.progressBar.visibility = View.GONE
                             var intent = Intent(this, MessagesActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                             startActivity(intent)
                         }
                         .addOnFailureListener {
+                            binding.progressBar.visibility = View.GONE
                             Log.i("Yoyoyo", it.message.toString())
                         }
                 }
             }
             .addOnFailureListener {
+                binding.progressBar.visibility = View.GONE
                 Log.i("Yoyoyo", it.message.toString())
             }
     }

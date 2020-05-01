@@ -7,10 +7,11 @@ import java.sql.Timestamp
 @Parcelize
 class Contact (
     var uuid: String?,
-    var userName: String?,
+    var fromUser: String?,
+    var toUser: String?,
     var lastMessage: String?,
     var timestamp: Long?,
     var photoUrl: String?
 ): Parcelable {
-    constructor() : this("", "", "", 0, "")
+    constructor() : this("", "", "", "", 0, "")
 }
