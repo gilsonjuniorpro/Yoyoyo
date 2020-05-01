@@ -17,11 +17,13 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.iid.FirebaseInstanceId
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import com.xwray.groupie.OnItemClickListener
 import com.yoyoyo.ca.R
+import com.yoyoyo.ca.core.ChatApplication
 import com.yoyoyo.ca.databinding.ActivityChatBinding
 import com.yoyoyo.ca.databinding.ActivityMessagesBinding
 import com.yoyoyo.ca.model.Contact
@@ -36,6 +38,11 @@ class MessagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val chatApplication: ChatApplication = application as ChatApplication
+        application.registerActivityLifecycleCallbacks(
+            chatApplication
+        )
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_messages)
         binding.recyclerLast.adapter = groupAdapter
         binding.recyclerLast.layoutManager = LinearLayoutManager(this)
@@ -49,7 +56,20 @@ class MessagesActivity : AppCompatActivity() {
 
         verifyAuthentication()
 
+        updateToken()
+
         fetchLastMessage()
+    }
+
+    private fun updateToken() {
+        var token = FirebaseInstanceId.getInstance().token
+        var uid = FirebaseAuth.getInstance().uid
+
+        if(uid != null){
+            FirebaseFirestore.getInstance().collection("users")
+                .document(uid)
+                .update("token", token)
+        }
     }
 
     private fun verifyAuthentication() {

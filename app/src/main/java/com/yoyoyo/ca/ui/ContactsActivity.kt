@@ -58,12 +58,15 @@ class ContactsActivity : AppCompatActivity() {
                     return@EventListener
                 }
                 var docs: List<DocumentSnapshot> = querySnapshot!!.documents
-
+                groupAdapter.clear()
                 for(doc in docs){
                     var user = doc.toObject(User::class.java)
-                    if(user?.uuid != FirebaseAuth.getInstance().uid) {
-                        groupAdapter.add(UserItem(user))
-                    }
+                    if(user?.uuid == FirebaseAuth.getInstance().uid)
+                        continue
+
+                    groupAdapter.add(UserItem(user))
+                    groupAdapter.notifyDataSetChanged()
+
                 }
             })
     }

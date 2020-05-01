@@ -21,6 +21,7 @@ import com.yoyoyo.ca.R
 import com.yoyoyo.ca.databinding.ActivityChatBinding
 import com.yoyoyo.ca.model.Contact
 import com.yoyoyo.ca.model.Message
+import com.yoyoyo.ca.model.Notification
 import com.yoyoyo.ca.model.User
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.text.SimpleDateFormat
@@ -71,7 +72,9 @@ class ChatActivity : AppCompatActivity() {
         return User(
             contact.uuid,
             contact.userName,
-            contact.photoUrl
+            contact.photoUrl,
+            "",
+            false
         )
     }
 
@@ -105,12 +108,21 @@ class ChatActivity : AppCompatActivity() {
                         .collection("contacts")
                         .document(toId)
                         .set(contact)
-                        .addOnSuccessListener {
 
-                        }
-                        .addOnFailureListener {
+                    if(!user?.online!!){
+                        var notification = Notification(
+                            message.fromId,
+                            message.toId,
+                            message.timestamp,
+                            message.text,
+                            me?.userName
+                        )
 
-                        }
+                        FirebaseFirestore.getInstance().collection("notifications")
+                            .document(user?.token!!)
+                            .set(notification)
+                    }
+
                 }
                 .addOnFailureListener {
                     Log.i("Yoyoyo", it.message.toString())
@@ -134,12 +146,20 @@ class ChatActivity : AppCompatActivity() {
                         .collection("contacts")
                         .document(fromId)
                         .set(contact)
-                        .addOnSuccessListener {
 
-                        }
-                        .addOnFailureListener {
+                    if(!user?.online!!){
+                        var notification = Notification(
+                            message.fromId,
+                            message.toId,
+                            message.timestamp,
+                            message.text,
+                            me?.userName
+                        )
 
-                        }
+                        FirebaseFirestore.getInstance().collection("notifications")
+                            .document(user?.token!!)
+                            .set(notification)
+                    }
                 }
                 .addOnFailureListener {
                     Log.i("Yoyoyo", it.message.toString())

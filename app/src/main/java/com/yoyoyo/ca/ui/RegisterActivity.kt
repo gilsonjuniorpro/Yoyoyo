@@ -71,7 +71,7 @@ class RegisterActivity : AppCompatActivity() {
                     var userName = binding.etName.text.toString()
                     var profileUrl = it.toString()
 
-                    var user = User(uid, userName, profileUrl)
+                    var user = User(uid, userName, profileUrl, null, false)
 
                     FirebaseFirestore.getInstance().collection("users")
                         .document(uid)
