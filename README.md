@@ -9,8 +9,6 @@ This is a simple chat using Firebase
 <img src="ezgif-5-98ef4cb45f5d.gif" width="20%"></img>
 <img src="Screenshot_20200429-193539.png" width="20%"></img>
 <img src="Screenshot_20200429-193543.png" width="20%"></img>
-<img src="Screenshot_20200429-193555.png" width="20%"></img>
-<img src="Screenshot_20200429-193559.png" width="20%"></img>
 
 
 ### 💻Technology
