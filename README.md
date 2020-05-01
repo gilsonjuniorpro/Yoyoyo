@@ -9,7 +9,7 @@ This is a simple chat using Firebase
 <img src="Screenshot_20200429-193543.png" width="20%"></img>
 <img src="Screenshot_20200429-193555.png" width="20%"></img>
 <img src="Screenshot_20200429-193559.png" width="20%"></img>
-[![Watch the video](Screenshot_20200429-193567.png)](https://github.com/gilsonjuniorpro/Yoyoyo/blob/master/screen-recording_20200429-193323.mp4)
+[![Watch the video](Screenshot_20200429-193567.png)](https://youtu.be/tBYmvXJi6bs)
 
 
 ### 💻Technology
