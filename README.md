@@ -5,11 +5,11 @@ This is a simple chat using Firebase
 
 
 ### 📷 How is this App
-<img src="Screenshot_20200429-193539.png" width="25%"></img>
-<img src="Screenshot_20200429-193543.png" width="25%"></img>
+<img src="Screenshot_20200429-193539.png" width="20%"></img>
+<img src="Screenshot_20200429-193543.png" width="20%"></img>
 <img src="Screenshot_20200429-193555.png" width="25%"></img>
 <img src="Screenshot_20200429-193559.png" width="25%"></img>
-[![Watch the video](https://github.com/gilsonjuniorpro/Yoyoyo/blob/master/screen-recording_20200429-193323.mp4)](https://github.com/gilsonjuniorpro/Yoyoyo/blob/master/screen-recording_20200429-193323.mp4)
+[![Watch the video](Screenshot_20200429-193559.png)](https://github.com/gilsonjuniorpro/Yoyoyo/blob/master/screen-recording_20200429-193323.mp4)
 
 
 ### 💻Technology
