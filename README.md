@@ -5,11 +5,12 @@ This is a simple chat using Firebase
 
 
 ### 📷 How is this App
+<img src="ezgif-5-c1f91864d1a3.gif" width="20%"></img>
+<img src="ezgif-5-98ef4cb45f5d.gif" width="20%"></img>
 <img src="Screenshot_20200429-193539.png" width="20%"></img>
 <img src="Screenshot_20200429-193543.png" width="20%"></img>
 <img src="Screenshot_20200429-193555.png" width="20%"></img>
 <img src="Screenshot_20200429-193559.png" width="20%"></img>
-[![Watch the video](Screenshot_20200429-193567.png)](https://youtu.be/tBYmvXJi6bs)
 
 
 ### 💻Technology
