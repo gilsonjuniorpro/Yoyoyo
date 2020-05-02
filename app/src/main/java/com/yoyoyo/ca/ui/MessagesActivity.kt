@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.api.load
 import coil.transform.CircleCropTransformation
@@ -30,35 +31,60 @@ import com.yoyoyo.ca.databinding.ActivityChatBinding
 import com.yoyoyo.ca.databinding.ActivityMessagesBinding
 import com.yoyoyo.ca.model.Contact
 import com.yoyoyo.ca.model.User
+import com.yoyoyo.ca.repository.ChatRepository
+import com.yoyoyo.ca.viewmodel.ChatViewModelFactory
+import com.yoyoyo.ca.viewmodel.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MessagesActivity : AppCompatActivity() {
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
-    lateinit var binding: ActivityMessagesBinding
-    var me: User? = null
+    private lateinit var binding: ActivityMessagesBinding
+    private var me: User? = null
+    private lateinit var chatApplication: ChatApplication
+
+    private val viewModel: UserViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ChatViewModelFactory(
+                ChatRepository(this)
+            )
+        ).get(UserViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val chatApplication: ChatApplication = application as ChatApplication
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_messages)
+
+        chatApplication = application as ChatApplication
         application.registerActivityLifecycleCallbacks(
             chatApplication
         )
 
-        FirebaseFirestore.getInstance().collection("/users")
-            .document(FirebaseAuth.getInstance().uid.toString())
-            .get()
-            .addOnSuccessListener {
-                me = it.toObject(User::class.java)
+        viewModel.user.observe(
+            this,
+            androidx.lifecycle.Observer {
+                me = it
                 binding.tvLoggedUser.text = me?.userName
             }
-            .addOnFailureListener {
-                Log.i("Yoyoyo", it.message.toString())
-            }
+        )
+        viewModel.onRecoverUser(FirebaseAuth.getInstance().uid.toString())
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_messages)
+        if(me == null) {
+            FirebaseFirestore.getInstance().collection("/users")
+                .document(FirebaseAuth.getInstance().uid.toString())
+                .get()
+                .addOnSuccessListener {
+                    me = it.toObject(User::class.java)
+                    binding.tvLoggedUser.text = me?.userName
+                }
+                .addOnFailureListener {
+                    Log.i("Yoyoyo", it.message.toString())
+                }
+        }
+
         binding.recyclerLast.adapter = groupAdapter
         binding.recyclerLast.layoutManager = LinearLayoutManager(this)
 
@@ -66,10 +92,10 @@ class MessagesActivity : AppCompatActivity() {
             var intent = Intent(this@MessagesActivity, ChatActivity::class.java)
             var contactItem = item as MessagesActivity.ContactItem
             var contact:Contact = contactItem.contact!!
-            contact.fromUser = me?.userName
+            contact.userName = me?.userName
             var user = User(
                 contact.uuid,
-                contact.toUser,
+                contact.userName,
                 contact.photoUrl,
                 null, false
             )
@@ -136,6 +162,7 @@ class MessagesActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             R.id.logout -> {
+                chatApplication.setOnLine(false)
                 FirebaseAuth.getInstance().signOut()
                 verifyAuthentication()
             }
@@ -163,7 +190,7 @@ class MessagesActivity : AppCompatActivity() {
 
             if(contact != null){
                 tvLastMessage.text = contact?.lastMessage
-                tvContactName.text = contact?.toUser
+                tvContactName.text = contact?.userName
                 tvTime.text = convertLongToTime(contact?.timestamp!!)
 
                 ivContact.load(contact?.photoUrl) {

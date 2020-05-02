@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 open class Message (
-    var text: String?,
+    var msg: String?,
     var timestamp: Long?,
     var fromId: String?,
     var toId: String?

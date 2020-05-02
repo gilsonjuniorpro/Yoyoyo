@@ -3,8 +3,6 @@ package com.yoyoyo.ca.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -12,6 +10,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.api.load
 import coil.transform.CircleCropTransformation
@@ -22,19 +21,60 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import com.xwray.groupie.OnItemClickListener
 import com.yoyoyo.ca.R
+import com.yoyoyo.ca.core.ChatApplication
 import com.yoyoyo.ca.databinding.ActivityContactsBinding
 import com.yoyoyo.ca.model.User
-import kotlinx.android.parcel.Parcelize
+import com.yoyoyo.ca.repository.ChatRepository
+import com.yoyoyo.ca.viewmodel.ChatViewModelFactory
+import com.yoyoyo.ca.viewmodel.UserViewModel
 
 class ContactsActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityContactsBinding
+    private lateinit var binding: ActivityContactsBinding
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
+    private lateinit var chatApplication: ChatApplication
+    private var me: User? = null
+
+    private val viewModel: UserViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ChatViewModelFactory(
+                ChatRepository(this)
+            )
+        ).get(UserViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_contacts)
+
+        chatApplication = application as ChatApplication
+        application.registerActivityLifecycleCallbacks(
+            chatApplication
+        )
+
+        viewModel.user.observe(
+            this,
+            androidx.lifecycle.Observer {
+                me = it
+                binding.tvLoggedUser.text = me?.userName
+            }
+        )
+        viewModel.onRecoverUser(FirebaseAuth.getInstance().uid.toString())
+
+        if(me == null) {
+            FirebaseFirestore.getInstance().collection("/users")
+                .document(FirebaseAuth.getInstance().uid.toString())
+                .get()
+                .addOnSuccessListener {
+                    me = it.toObject(User::class.java)
+                    binding.tvLoggedUser.text = me?.userName
+                }
+                .addOnFailureListener {
+                    Log.i("Yoyoyo", it.message.toString())
+                }
+        }
 
         binding.recyclerContacts.adapter = groupAdapter
         binding.recyclerContacts.layoutManager = LinearLayoutManager(this)
@@ -54,7 +94,6 @@ class ContactsActivity : AppCompatActivity() {
         FirebaseFirestore.getInstance().collection("/users")
             .addSnapshotListener(EventListener{ querySnapshot: QuerySnapshot?, e: FirebaseFirestoreException? ->
                 if(e != null){
-                    Log.e("Yoyoyo", e.message)
                     return@EventListener
                 }
                 var docs: List<DocumentSnapshot> = querySnapshot!!.documents
@@ -87,6 +126,7 @@ class ContactsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
+                chatApplication.setOnLine(false)
                 FirebaseAuth.getInstance().signOut()
                 verifyAuthentication()
             }
@@ -109,7 +149,7 @@ class ContactsActivity : AppCompatActivity() {
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             var tvContactName = viewHolder.itemView.findViewById<TextView>(R.id.tvContactName)
             var ivContact = viewHolder.itemView.findViewById<ImageView>(R.id.ivContact)
-            ivContact.load(user?.profileUrl) {
+            ivContact.load(user?.userPictureUrl) {
                 crossfade(true)
                 crossfade(100)
                 transformations(CircleCropTransformation())

@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.api.load
 import coil.transform.CircleCropTransformation
@@ -24,7 +25,9 @@ import com.yoyoyo.ca.model.Contact
 import com.yoyoyo.ca.model.Message
 import com.yoyoyo.ca.model.Notification
 import com.yoyoyo.ca.model.User
-import kotlinx.android.synthetic.main.activity_chat.*
+import com.yoyoyo.ca.repository.ChatRepository
+import com.yoyoyo.ca.viewmodel.ChatViewModelFactory
+import com.yoyoyo.ca.viewmodel.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,15 +38,24 @@ class ChatActivity : AppCompatActivity() {
     lateinit var binding: ActivityChatBinding
     private var user: User? = null
 
+    private val viewModel: UserViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ChatViewModelFactory(
+                ChatRepository(this)
+            )
+        ).get(UserViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_chat)
 
         val chatApplication: ChatApplication = application as ChatApplication
         application.registerActivityLifecycleCallbacks(
             chatApplication
         )
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_chat)
 
         verifyAuthentication()
 
@@ -57,7 +69,18 @@ class ChatActivity : AppCompatActivity() {
         binding.recyclerMessages.layoutManager = LinearLayoutManager(this)
         binding.tvLoggedUser.text = me?.userName
 
-        FirebaseFirestore.getInstance().collection("/users")
+        viewModel.user.observe(
+            this,
+            androidx.lifecycle.Observer {
+                me = it
+                binding.tvLoggedUser.text = me?.userName
+                fetchMessages()
+            }
+        )
+        viewModel.onRecoverUser(FirebaseAuth.getInstance().uid.toString())
+
+        if(me == null) {
+            FirebaseFirestore.getInstance().collection("/users")
             .document(FirebaseAuth.getInstance().uid.toString())
             .get()
             .addOnSuccessListener {
@@ -68,14 +91,14 @@ class ChatActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Log.i("Yoyoyo", it.message.toString())
             }
-
-        fetchMessages()
+        }
+        //fetchMessages()
     }
 
     private fun fromContactToUser(contact: Contact): User? {
         return User(
             contact.uuid,
-            contact.fromUser,
+            contact.userName,
             contact.photoUrl,
             "",
             false
@@ -92,7 +115,7 @@ class ChatActivity : AppCompatActivity() {
 
         var message = Message(text, timestamp, fromId, toId)
 
-        if(message.text!!.isNotEmpty()){
+        if(message.msg!!.isNotEmpty()){
             FirebaseFirestore.getInstance().collection("conversations")
                 .document(fromId)
                 .collection(toId)
@@ -101,10 +124,9 @@ class ChatActivity : AppCompatActivity() {
                     var contact = Contact(
                         toId,
                         me?.userName,
-                        user?.userName,
-                        message.text,
+                        message.msg,
                         timestamp,
-                        user?.profileUrl
+                        user?.userPictureUrl
                     )
 
                     FirebaseFirestore.getInstance().collection("/last-messages")
@@ -113,12 +135,12 @@ class ChatActivity : AppCompatActivity() {
                         .document(toId)
                         .set(contact)
 
-                    if(!user?.online!!){
+                    if(!user?.status!!){
                         var notification = Notification(
                             message.fromId,
                             message.toId,
                             message.timestamp,
-                            message.text,
+                            message.msg,
                             me?.userName
                         )
 
@@ -142,10 +164,9 @@ class ChatActivity : AppCompatActivity() {
                     var contact = Contact(
                         toId,
                         user?.userName,
-                        me?.userName,
-                        message.text,
+                        message.msg,
                         timestamp,
-                        me?.profileUrl
+                        me?.userPictureUrl
                     )
 
                     FirebaseFirestore.getInstance().collection("/last-messages")
@@ -238,19 +259,19 @@ class ChatActivity : AppCompatActivity() {
 
             if(message?.fromId == user?.uuid){
                 if(this@ChatActivity.user != null) {
-                    ivUserMessage.load(this@ChatActivity.user?.profileUrl) {
+                    ivUserMessage.load(this@ChatActivity.user?.userPictureUrl) {
                         transformations(CircleCropTransformation())
                     }
                 }
             }else{
                 if(this@ChatActivity.me != null) {
-                    ivUserMessage.load(this@ChatActivity.me?.profileUrl) {
+                    ivUserMessage.load(this@ChatActivity.me?.userPictureUrl) {
                         transformations(CircleCropTransformation())
                     }
                 }
             }
             if(message != null){
-                tvUserMessage.text = message?.text
+                tvUserMessage.text = message?.msg
                 tvTime.text = convertLongToTime(message?.timestamp!!)
             }
         }

@@ -7,9 +7,9 @@ import kotlinx.android.parcel.Parcelize
 class User(
     var uuid: String?,
     var userName: String?,
-    var profileUrl: String?,
+    var userPictureUrl: String?,
     var token: String?,
-    var online: Boolean
+    var status: Boolean?
 ) : Parcelable {
-    constructor() : this("", "", "", "", false)
+    constructor() : this("", "", "", "", null)
 }

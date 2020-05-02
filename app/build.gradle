@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -61,5 +62,20 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     implementation "io.coil-kt:coil:0.9.1"
+
+    //Room
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    //enable coroutines
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
+    //viewmodel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    //allow coroutines inside viewmodel
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    //add livedata
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 }
 apply plugin: 'com.google.gms.google-services'

@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +22,9 @@ import com.yoyoyo.ca.R
 import com.yoyoyo.ca.databinding.ActivityContactsBinding
 import com.yoyoyo.ca.databinding.ActivityRegisterBinding
 import com.yoyoyo.ca.model.User
+import com.yoyoyo.ca.repository.ChatRepository
+import com.yoyoyo.ca.viewmodel.ChatViewModelFactory
+import com.yoyoyo.ca.viewmodel.UserViewModel
 import java.lang.Exception
 import java.util.*
 
@@ -28,6 +32,15 @@ class RegisterActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityRegisterBinding
     var imageUri: Uri? = null
+
+    private val viewModel: UserViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ChatViewModelFactory(
+                ChatRepository(this)
+            )
+        ).get(UserViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +95,7 @@ class RegisterActivity : AppCompatActivity() {
                         .document(uid)
                         .set(user)
                         .addOnSuccessListener {
+                            viewModel.onCreate(user)
                             binding.progressBar.visibility = View.GONE
                             var intent = Intent(this, MessagesActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

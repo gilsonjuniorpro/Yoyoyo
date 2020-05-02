@@ -5,22 +5,56 @@ import android.app.Application
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jarvis.ca.Mark
 import com.yoyoyo.ca.model.User
+import com.yoyoyo.ca.repository.AppDatabase
+import com.yoyoyo.ca.repository.ChatRepository
+import com.yoyoyo.ca.viewmodel.ChatViewModelFactory
+import com.yoyoyo.ca.viewmodel.UserViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ChatApplication : Application(), Application.ActivityLifecycleCallbacks{
 
     var user: User? = null
 
-    private fun setOnLine(enabled: Boolean){
+    lateinit var repository: ChatRepository
+
+    companion object {
+        @get:Synchronized
+        lateinit var initializer:ChatApplication
+
+        lateinit var activity: Activity
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        initializer = this
+
+        repository = ChatRepository(this)
+
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                user = repository.getUser(
+                    FirebaseAuth.getInstance().uid.toString()
+                )
+            }
+        }
+    }
+
+    fun setOnLine(status: Boolean){
         var uid = FirebaseAuth.getInstance().uid
 
         if(uid != null){
             FirebaseFirestore.getInstance().collection("users")
                 .document(uid)
-                .update("online", enabled)
+                .update("status", status)
         }
     }
 

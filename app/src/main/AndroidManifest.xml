@@ -11,7 +11,8 @@
         android:name=".core.ChatApplication"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MessagesActivity">
+        <activity android:name=".ui.MessagesActivity"
+            android:label="@string/activity_message">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +30,7 @@
 
         <activity
             android:name=".ui.ContactsActivity"
-            android:label="@string/app_name">
+            android:label="@string/activity_contacts">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
