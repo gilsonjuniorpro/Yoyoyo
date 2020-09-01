@@ -92,7 +92,8 @@ class ContactsActivity : AppCompatActivity() {
 
     private fun fetchUsers() {
         FirebaseFirestore.getInstance().collection("/users")
-            .addSnapshotListener(EventListener{ querySnapshot: QuerySnapshot?, e: FirebaseFirestoreException? ->
+            .addSnapshotListener(EventListener{ querySnapshot:
+                 QuerySnapshot?, e: FirebaseFirestoreException? ->
                 if(e != null){
                     return@EventListener
                 }
