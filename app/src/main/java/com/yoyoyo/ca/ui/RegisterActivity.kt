@@ -65,6 +65,7 @@ class RegisterActivity : AppCompatActivity() {
                         saveUserFirebase()
                     }else{
                         Log.i("Yoyoyo", it.exception.toString())
+                        Mark.showAlertError(this, it.exception.toString())
                     }
                 })
                 .addOnFailureListener(OnFailureListener {
@@ -104,6 +105,7 @@ class RegisterActivity : AppCompatActivity() {
                         .addOnFailureListener {
                             binding.progressBar.visibility = View.GONE
                             Log.i("Yoyoyo", it.message.toString())
+                            Mark.showAlertError(this, it.message.toString())
                         }
                 }
             }
