@@ -83,23 +83,23 @@ class ChatApplication : Application(), Application.ActivityLifecycleCallbacks{
     }
 
     override fun onActivityStarted(activity: Activity) {
-
+        Log.i("lifecycle", "onActivityStarted")
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-
+        Log.i("lifecycle", "onActivityDestroyed")
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-
+        Log.i("lifecycle", "onActivitySaveInstanceState")
     }
 
     override fun onActivityStopped(activity: Activity) {
-
+        Log.i("lifecycle", "onActivityStopped")
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-
+        Log.i("lifecycle", "onActivityCreated")
     }
 
     override fun onActivityResumed(activity: Activity) {
